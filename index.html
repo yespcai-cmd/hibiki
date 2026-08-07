@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>AIとジャンケン</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;900&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FFF8E7;
+    --navy:#2B3A55;
+    --sky:#4FC3F7;
+    --coral:#FF6B6B;
+    --leaf:#6BCB77;
+    --sun:#FFC145;
+    --white:#FFFFFF;
+    --shadow: 0 6px 0 rgba(43,58,85,0.18);
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;
+    padding:0;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(79,195,247,0.18), transparent 40%),
+      radial-gradient(circle at 90% 85%, rgba(255,107,107,0.16), transparent 45%),
+      var(--cream);
+    min-height:100vh;
+    font-family:'Zen Maru Gothic','M PLUS Rounded 1c',sans-serif;
+    color:var(--navy);
+  }
+  .app{
+    max-width:640px;
+    margin:0 auto;
+    padding:24px 16px 60px;
+  }
+  h1{
+    font-family:'M PLUS Rounded 1c',sans-serif;
+    font-weight:900;
+    text-align:center;
+    font-size:clamp(28px,7vw,40px);
+    letter-spacing:0.02em;
+    margin:8px 0 4px;
+    color:var(--navy);
+  }
+  .sub{
+    text-align:center;
+    font-size:15px;
+    color:#5b6b8c;
+    margin:0 0 20px;
+  }
+  .camera-wrap{
+    position:relative;
+    width:100%;
+    aspect-ratio: 4/3;
+    background:var(--navy);
+    border-radius:28px;
+    overflow:hidden;
+    box-shadow: var(--shadow);
+    border:6px solid var(--white);
+  }
+  video{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    transform:scaleX(-1);
+    display:block;
+    background:#1c2740;
+  }
+  .overlay-text{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    pointer-events:none;
+  }
+  .overlay-text span{
+    font-family:'M PLUS Rounded 1c',sans-serif;
+    font-weight:900;
+    font-size:clamp(36px,12vw,64px);
+    color:#fff;
+    text-shadow: 0 4px 0 rgba(0,0,0,0.35);
+    opacity:0;
+    transform:scale(0.6);
+  }
+  .overlay-text span.show{
+    animation: pop 0.55s cubic-bezier(.34,1.56,.64,1) forwards;
+  }
+  @keyframes pop{
+    0%{opacity:0; transform:scale(0.5);}
+    60%{opacity:1; transform:scale(1.15);}
+    100%{opacity:1; transform:scale(1);}
+  }
+  .status{
+    text-align:center;
+    font-weight:700;
+    font-size:16px;
+    margin:14px 0;
+    min-height:22px;
+    color:#5b6b8c;
+  }
+  .controls{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    margin:18px 0 8px;
+  }
+  .big-btn{
+    font-family:'M PLUS Rounded 1c',sans-serif;
+    font-weight:700;
+    font-size:clamp(20px,5.5vw,26px);
+    padding:20px 12px;
+    border:none;
+    border-radius:22px;
+    cursor:pointer;
+    color:#fff;
+    box-shadow: var(--shadow);
+    transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+  }
+  .big-btn:active{
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 rgba(43,58,85,0.18);
+  }
+  .big-btn:disabled{
+    filter:grayscale(0.5) opacity(0.55);
+    cursor:not-allowed;
+    transform:none;
+    box-shadow:none;
+  }
+  .big-btn:focus-visible{
+    outline:4px solid var(--navy);
+    outline-offset:3px;
+  }
+  .btn-start{ background:var(--sky); }
+  .btn-play{ background:var(--coral); }
+  .btn-reset{ background:#B9C2D0; color:var(--navy); }
+
+  .result-area{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    margin:26px 0 6px;
+  }
+  .hand-card{
+    background:var(--white);
+    border-radius:20px;
+    padding:14px 10px;
+    width:130px;
+    text-align:center;
+    box-shadow: var(--shadow);
+  }
+  .hand-card .label{
+    font-weight:700;
+    font-size:14px;
+    color:#5b6b8c;
+    margin-bottom:6px;
+  }
+  .hand-card .emoji{
+    font-size:56px;
+    line-height:1;
+  }
+  .vs{
+    font-family:'M PLUS Rounded 1c',sans-serif;
+    font-weight:900;
+    font-size:20px;
+    color:var(--coral);
+  }
+  .judge{
+    text-align:center;
+    font-family:'M PLUS Rounded 1c',sans-serif;
+    font-weight:900;
+    font-size:clamp(24px,6vw,32px);
+    min-height:44px;
+    margin:10px 0 20px;
+  }
+  .judge.win{ color:#3fae52; }
+  .judge.lose{ color:var(--coral); }
+  .judge.draw{ color:#e0a000; }
+
+  .score-board{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+  }
+  .score-card{
+    background:var(--white);
+    border-radius:18px;
+    padding:14px 6px;
+    text-align:center;
+    box-shadow: var(--shadow);
+  }
+  .score-card .num{
+    font-family:'M PLUS Rounded 1c',sans-serif;
+    font-weight:900;
+    font-size:clamp(30px,8vw,40px);
+  }
+  .score-card .cap{
+    font-weight:700;
+    font-size:14px;
+    color:#5b6b8c;
+    margin-top:2px;
+  }
+  .score-card.win .num{ color:#3fae52; }
+  .score-card.draw .num{ color:#e0a000; }
+  .score-card.lose .num{ color:var(--coral); }
+
+  @media (prefers-reduced-motion: reduce){
+    .overlay-text span.show{ animation:none; opacity:1; transform:scale(1); }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>🤖 AIと ジャンケン</h1>
+  <p class="sub">カメラに むかって グー・チョキ・パー を だしてね</p>
+
+  <div class="camera-wrap">
+    <video id="video" autoplay playsinline muted></video>
+    <div class="overlay-text" id="overlayText"></div>
+  </div>
+
+  <p class="status" id="status">「カメラを はじめる」を おしてね</p>
+
+  <div class="controls">
+    <button class="big-btn btn-start" id="startBtn">📷 カメラを はじめる</button>
+    <button class="big-btn btn-play" id="playBtn" disabled>✊ ジャンケン ぽん！</button>
+    <button class="big-btn btn-reset" id="resetBtn">🔄 スコアを リセット</button>
+  </div>
+
+  <div class="result-area">
+    <div class="hand-card">
+      <div class="label">きみ</div>
+      <div class="emoji" id="youEmoji">❔</div>
+    </div>
+    <div class="vs">VS</div>
+    <div class="hand-card">
+      <div class="label">AI</div>
+      <div class="emoji" id="aiEmoji">❔</div>
+    </div>
+  </div>
+
+  <div class="judge" id="judgeText"></div>
+
+  <div class="score-board">
+    <div class="score-card win"><div class="num" id="winCount">0</div><div class="cap">かち</div></div>
+    <div class="score-card draw"><div class="num" id="drawCount">0</div><div class="cap">あいこ</div></div>
+    <div class="score-card lose"><div class="num" id="loseCount">0</div><div class="cap">まけ</div></div>
+  </div>
+</div>
+
+<script type="module">
+import { GestureRecognizer, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
+
+const video = document.getElementById('video');
+const startBtn = document.getElementById('startBtn');
+const playBtn = document.getElementById('playBtn');
+const resetBtn = document.getElementById('resetBtn');
+const statusEl = document.getElementById('status');
+const overlayText = document.getElementById('overlayText');
+const youEmoji = document.getElementById('youEmoji');
+const aiEmoji = document.getElementById('aiEmoji');
+const judgeText = document.getElementById('judgeText');
+const winCountEl = document.getElementById('winCount');
+const drawCountEl = document.getElementById('drawCount');
+const loseCountEl = document.getElementById('loseCount');
+
+let recognizer = null;
+let scores = { win: 0, draw: 0, lose: 0 };
+
+const HAND_MAP = {
+  Closed_Fist: { name: 'グー', emoji: '✊' },
+  Open_Palm:   { name: 'パー', emoji: '✋' },
+  Victory:     { name: 'チョキ', emoji: '✌️' }
+};
+
+const WIN_MAP = { 'グー': 'チョキ', 'チョキ': 'パー', 'パー': 'グー' };
+
+function setStatus(text){ statusEl.textContent = text; }
+
+async function initCamera(){
+  setStatus('カメラの じゅんびちゅう…');
+  startBtn.disabled = true;
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+    video.srcObject = stream;
+    await video.play();
+  }catch(err){
+    setStatus('カメラを つかえませんでした。ブラウザの せっていを かくにんしてね。');
+    startBtn.disabled = false;
+    return;
+  }
+
+  setStatus('AIを よみこみちゅう…');
+  try{
+    const vision = await FilesetResolver.forVisionTasks(
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+    );
+    recognizer = await GestureRecognizer.createFromOptions(vision, {
+      baseOptions: {
+        modelAssetPath: "https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task",
+        delegate: "GPU"
+      },
+      runningMode: "IMAGE",
+      numHands: 1
+    });
+  }catch(e){
+    try{
+      const vision = await FilesetResolver.forVisionTasks(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+      );
+      recognizer = await GestureRecognizer.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: "https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task",
+          delegate: "CPU"
+        },
+        runningMode: "IMAGE",
+        numHands: 1
+      });
+    }catch(e2){
+      setStatus('AIの よみこみに しっぱいしました。ページを りろーどしてね。');
+      return;
+    }
+  }
+
+  setStatus('じゅんび OK！「ジャンケン ぽん！」を おしてね');
+  playBtn.disabled = false;
+}
+
+function showOverlay(text, ms){
+  return new Promise(resolve=>{
+    overlayText.innerHTML = `<span class="show">${text}</span>`;
+    setTimeout(()=>{
+      overlayText.innerHTML = '';
+      resolve();
+    }, ms);
+  });
+}
+
+function classifyHand(){
+  if(!recognizer) return null;
+  const result = recognizer.recognize(video);
+  if(!result.gestures || result.gestures.length === 0) return null;
+  const top = result.gestures[0][0];
+  if(top.score < 0.55) return null;
+  return HAND_MAP[top.categoryName] || null;
+}
+
+function judge(you, ai){
+  if(you === ai) return 'draw';
+  if(WIN_MAP[you] === ai) return 'win';
+  return 'lose';
+}
+
+async function playRound(){
+  playBtn.disabled = true;
+  judgeText.textContent = '';
+  judgeText.className = 'judge';
+  youEmoji.textContent = '❔';
+  aiEmoji.textContent = '❔';
+  setStatus('てを だしてね！');
+
+  await showOverlay('さいしょは', 550);
+  await showOverlay('グー！', 550);
+  await showOverlay('ジャンケン', 550);
+
+  const overlayPromise = showOverlay('ポン！', 500);
+  const hand = classifyHand();
+  await overlayPromise;
+
+  if(!hand){
+    setStatus('てが うまく みえなかったよ。もういちど おしてね！');
+    playBtn.disabled = false;
+    return;
+  }
+
+  const aiKeys = Object.values(HAND_MAP);
+  const aiPick = aiKeys[Math.floor(Math.random()*aiKeys.length)];
+
+  youEmoji.textContent = hand.emoji;
+  aiEmoji.textContent = aiPick.emoji;
+
+  const result = judge(hand.name, aiPick.name);
+  if(result === 'win'){
+    scores.win++; judgeText.textContent = 'きみの かち！🎉'; judgeText.classList.add('win');
+  } else if(result === 'lose'){
+    scores.lose++; judgeText.textContent = 'AIの かち… くやしい！'; judgeText.classList.add('lose');
+  } else {
+    scores.draw++; judgeText.textContent = 'あいこ！ もういちど！'; judgeText.classList.add('draw');
+  }
+
+  winCountEl.textContent = scores.win;
+  drawCountEl.textContent = scores.draw;
+  loseCountEl.textContent = scores.lose;
+
+  setStatus('じゅんび OK！「ジャンケン ぽん！」を おしてね');
+  playBtn.disabled = false;
+}
+
+function resetScores(){
+  scores = { win:0, draw:0, lose:0 };
+  winCountEl.textContent = 0;
+  drawCountEl.textContent = 0;
+  loseCountEl.textContent = 0;
+  judgeText.textContent = '';
+  judgeText.className = 'judge';
+  youEmoji.textContent = '❔';
+  aiEmoji.textContent = '❔';
+}
+
+startBtn.addEventListener('click', initCamera);
+playBtn.addEventListener('click', playRound);
+resetBtn.addEventListener('click', resetScores);
+</script>
+</body>
+</html>
