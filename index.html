@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>AIとジャンケン</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,49 +16,61 @@
     --leaf:#6BCB77;
     --sun:#FFC145;
     --white:#FFFFFF;
-    --shadow: 0 6px 0 rgba(43,58,85,0.18);
+    --shadow: 0 5px 0 rgba(43,58,85,0.18);
+    --vh: 1vh;
   }
   *{box-sizing:border-box;}
   html,body{
     margin:0;
     padding:0;
+    height:100%;
+    overflow:hidden;
+    overscroll-behavior:none;
     background:
       radial-gradient(circle at 12% 8%, rgba(79,195,247,0.18), transparent 40%),
       radial-gradient(circle at 90% 85%, rgba(255,107,107,0.16), transparent 45%),
       var(--cream);
-    min-height:100vh;
     font-family:'Zen Maru Gothic','M PLUS Rounded 1c',sans-serif;
     color:var(--navy);
   }
   .app{
     max-width:640px;
     margin:0 auto;
-    padding:24px 16px 60px;
+    padding: clamp(6px,1.4vh,14px) clamp(10px,3vw,20px);
+    height: calc(var(--vh,1vh) * 100);
+    height: 100dvh;
+    display:flex;
+    flex-direction:column;
+    gap: clamp(5px,1.1vh,10px);
+    overflow:hidden;
   }
   h1{
     font-family:'M PLUS Rounded 1c',sans-serif;
     font-weight:900;
     text-align:center;
-    font-size:clamp(28px,7vw,40px);
+    font-size:clamp(17px,3.4vh,28px);
     letter-spacing:0.02em;
-    margin:8px 0 4px;
+    margin:0;
     color:var(--navy);
+    flex-shrink:0;
   }
   .sub{
     text-align:center;
-    font-size:15px;
+    font-size:clamp(10px,1.5vh,13px);
     color:#5b6b8c;
-    margin:0 0 20px;
+    margin:0;
+    flex-shrink:0;
   }
   .camera-wrap{
     position:relative;
     width:100%;
-    aspect-ratio: 4/3;
+    flex:1 1 auto;
+    min-height:70px;
     background:var(--navy);
-    border-radius:28px;
+    border-radius:clamp(14px,3vw,26px);
     overflow:hidden;
     box-shadow: var(--shadow);
-    border:6px solid var(--white);
+    border:clamp(3px,0.6vh,5px) solid var(--white);
   }
   video{
     width:100%;
@@ -79,7 +91,7 @@
   .overlay-text span{
     font-family:'M PLUS Rounded 1c',sans-serif;
     font-weight:900;
-    font-size:clamp(36px,12vw,64px);
+    font-size:clamp(26px,8vh,56px);
     color:#fff;
     text-shadow: 0 4px 0 rgba(0,0,0,0.35);
     opacity:0;
@@ -93,34 +105,77 @@
     60%{opacity:1; transform:scale(1.15);}
     100%{opacity:1; transform:scale(1);}
   }
+  .camera-permission-btn{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    background:rgba(43,58,85,0.85);
+    color:#fff;
+    border:none;
+    font-family:'M PLUS Rounded 1c',sans-serif;
+    font-weight:700;
+    font-size:clamp(14px,3vh,20px);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:16px;
+    line-height:1.5;
+  }
+  .camera-permission-btn.hidden{ display:none; }
+
+  .hold-bar-wrap{
+    width:100%;
+    height:clamp(7px,1.3vh,12px);
+    background:#e3ddc9;
+    border-radius:999px;
+    overflow:hidden;
+    flex-shrink:0;
+    box-shadow: inset 0 2px 4px rgba(43,58,85,0.15);
+  }
+  .hold-bar{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,var(--leaf),#3fae52);
+    border-radius:999px;
+    transition:width 0.05s linear;
+  }
+
   .status{
     text-align:center;
     font-weight:700;
-    font-size:16px;
-    margin:14px 0;
-    min-height:22px;
+    font-size:clamp(11px,1.7vh,15px);
+    margin:0;
     color:#5b6b8c;
+    flex-shrink:0;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
   }
   .controls{
     display:flex;
-    flex-direction:column;
-    gap:14px;
-    margin:18px 0 8px;
+    flex-direction:row;
+    gap:clamp(8px,1.6vw,14px);
+    flex-shrink:0;
   }
   .big-btn{
+    flex:1;
     font-family:'M PLUS Rounded 1c',sans-serif;
     font-weight:700;
-    font-size:clamp(20px,5.5vw,26px);
-    padding:20px 12px;
+    font-size:clamp(11px,1.7vh,15px);
+    padding:clamp(9px,1.5vh,15px) 6px;
     border:none;
-    border-radius:22px;
+    border-radius:clamp(14px,2.2vw,20px);
     cursor:pointer;
     color:#fff;
     box-shadow: var(--shadow);
+    line-height:1.3;
     transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
   }
   .big-btn:active{
-    transform: translateY(4px);
+    transform: translateY(3px);
     box-shadow: 0 2px 0 rgba(43,58,85,0.18);
   }
   .big-btn:disabled{
@@ -133,7 +188,6 @@
     outline:4px solid var(--navy);
     outline-offset:3px;
   }
-  .btn-start{ background:var(--sky); }
   .btn-play{ background:var(--coral); }
   .btn-reset{ background:#B9C2D0; color:var(--navy); }
 
@@ -141,93 +195,125 @@
     display:flex;
     align-items:center;
     justify-content:center;
-    gap:18px;
-    margin:26px 0 6px;
+    gap:clamp(10px,2.2vw,18px);
+    flex-shrink:0;
   }
   .hand-card{
     background:var(--white);
-    border-radius:20px;
-    padding:14px 10px;
-    width:130px;
+    border-radius:clamp(12px,2.2vw,20px);
+    padding:clamp(6px,1.1vh,12px) clamp(6px,1.6vw,10px);
+    width:clamp(74px,22vw,130px);
     text-align:center;
     box-shadow: var(--shadow);
   }
   .hand-card .label{
     font-weight:700;
-    font-size:14px;
+    font-size:clamp(9px,1.3vh,13px);
     color:#5b6b8c;
-    margin-bottom:6px;
+    margin-bottom:2px;
   }
   .hand-card .emoji{
-    font-size:56px;
+    font-size:clamp(26px,5.5vh,52px);
     line-height:1;
   }
   .vs{
     font-family:'M PLUS Rounded 1c',sans-serif;
     font-weight:900;
-    font-size:20px;
+    font-size:clamp(13px,2vh,19px);
     color:var(--coral);
+    flex-shrink:0;
   }
   .judge{
     text-align:center;
     font-family:'M PLUS Rounded 1c',sans-serif;
     font-weight:900;
-    font-size:clamp(24px,6vw,32px);
-    min-height:44px;
-    margin:10px 0 20px;
+    font-size:clamp(15px,2.8vh,26px);
+    min-height:clamp(18px,3vh,28px);
+    margin:0;
+    flex-shrink:0;
   }
   .judge.win{ color:#3fae52; }
   .judge.lose{ color:var(--coral); }
   .judge.draw{ color:#e0a000; }
 
+  .board-title{
+    text-align:center;
+    font-family:'M PLUS Rounded 1c',sans-serif;
+    font-weight:700;
+    font-size:clamp(10px,1.5vh,14px);
+    color:#5b6b8c;
+    margin:0;
+    flex-shrink:0;
+  }
   .score-board{
     display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:12px;
+    grid-template-columns: 1fr 0.68fr 1fr;
+    gap:clamp(6px,1.4vw,12px);
+    flex-shrink:0;
+    align-items:stretch;
   }
   .score-card{
-    background:var(--white);
-    border-radius:18px;
-    padding:14px 6px;
+    border-radius:clamp(12px,2vw,18px);
+    padding:clamp(7px,1.3vh,16px) 4px;
     text-align:center;
     box-shadow: var(--shadow);
+    color:#fff;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+  .score-card .who{
+    font-weight:700;
+    font-size:clamp(9px,1.2vh,12px);
+    opacity:0.9;
+    margin-bottom:1px;
+  }
+  .score-card .icon{
+    font-size:clamp(13px,2vh,20px);
+    margin-bottom:1px;
   }
   .score-card .num{
     font-family:'M PLUS Rounded 1c',sans-serif;
     font-weight:900;
-    font-size:clamp(30px,8vw,40px);
+    font-size:clamp(18px,4.2vh,38px);
+    line-height:1;
   }
   .score-card .cap{
     font-weight:700;
-    font-size:14px;
-    color:#5b6b8c;
+    font-size:clamp(8px,1.2vh,12px);
     margin-top:2px;
   }
-  .score-card.win .num{ color:#3fae52; }
-  .score-card.draw .num{ color:#e0a000; }
-  .score-card.lose .num{ color:var(--coral); }
+  .score-card.you{ background:linear-gradient(160deg,#6fd0f7,var(--sky)); }
+  .score-card.draw{ background:linear-gradient(160deg,#ffd166,#e0a000); }
+  .score-card.ai{ background:linear-gradient(160deg,#ff9a9a,var(--coral)); }
 
   @media (prefers-reduced-motion: reduce){
     .overlay-text span.show{ animation:none; opacity:1; transform:scale(1); }
+  }
+
+  @media (max-height: 480px){
+    .sub{ display:none; }
   }
 </style>
 </head>
 <body>
 <div class="app">
   <h1>🤖 AIと ジャンケン</h1>
-  <p class="sub">カメラに むかって グー・チョキ・パー を だしてね</p>
+  <p class="sub">カメラに むかって ✊ グー を 1びょう みせると はじまるよ！</p>
 
   <div class="camera-wrap">
     <video id="video" autoplay playsinline muted></video>
     <div class="overlay-text" id="overlayText"></div>
+    <button class="camera-permission-btn hidden" id="permBtn">📷 タップして<br>カメラを ゆるしてね</button>
   </div>
 
-  <p class="status" id="status">「カメラを はじめる」を おしてね</p>
+  <div class="hold-bar-wrap"><div class="hold-bar" id="holdBar"></div></div>
+
+  <p class="status" id="status">カメラを じゅんびちゅう…</p>
 
   <div class="controls">
-    <button class="big-btn btn-start" id="startBtn">📷 カメラを はじめる</button>
-    <button class="big-btn btn-play" id="playBtn" disabled>✊ ジャンケン ぽん！</button>
-    <button class="big-btn btn-reset" id="resetBtn">🔄 スコアを リセット</button>
+    <button class="big-btn btn-play" id="playBtn" disabled>✊ てで はじまらない ときは ここ</button>
+    <button class="big-btn btn-reset" id="resetBtn">🔄 リセット</button>
   </div>
 
   <div class="result-area">
@@ -244,22 +330,46 @@
 
   <div class="judge" id="judgeText"></div>
 
+  <p class="board-title">せんせき（きみ の かち／まけ）</p>
   <div class="score-board">
-    <div class="score-card win"><div class="num" id="winCount">0</div><div class="cap">かち</div></div>
-    <div class="score-card draw"><div class="num" id="drawCount">0</div><div class="cap">あいこ</div></div>
-    <div class="score-card lose"><div class="num" id="loseCount">0</div><div class="cap">まけ</div></div>
+    <div class="score-card you">
+      <div class="who">🧑 きみ</div>
+      <div class="icon">🏆</div>
+      <div class="num" id="winCount">0</div>
+      <div class="cap">かち</div>
+    </div>
+    <div class="score-card draw">
+      <div class="who">🤝</div>
+      <div class="num" id="drawCount">0</div>
+      <div class="cap">あいこ</div>
+    </div>
+    <div class="score-card ai">
+      <div class="who">🤖 AI</div>
+      <div class="icon">🏆</div>
+      <div class="num" id="loseCount">0</div>
+      <div class="cap">かち</div>
+    </div>
   </div>
 </div>
 
+<script>
+  function setVH(){
+    document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
+  }
+  setVH();
+  window.addEventListener('resize', setVH);
+  window.addEventListener('orientationchange', setVH);
+</script>
 <script type="module">
 import { GestureRecognizer, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
 
 const video = document.getElementById('video');
-const startBtn = document.getElementById('startBtn');
+const permBtn = document.getElementById('permBtn');
 const playBtn = document.getElementById('playBtn');
 const resetBtn = document.getElementById('resetBtn');
 const statusEl = document.getElementById('status');
 const overlayText = document.getElementById('overlayText');
+const holdBar = document.getElementById('holdBar');
 const youEmoji = document.getElementById('youEmoji');
 const aiEmoji = document.getElementById('aiEmoji');
 const judgeText = document.getElementById('judgeText');
@@ -268,65 +378,145 @@ const drawCountEl = document.getElementById('drawCount');
 const loseCountEl = document.getElementById('loseCount');
 
 let recognizer = null;
-let scores = { win: 0, draw: 0, lose: 0 };
+let scores = { win: 0, draw: 0, lose: 0 }; // win = user's wins, lose = AI's wins
+let latestGesture = null;   // { name, emoji, score }
+let roundInProgress = false;
+let armed = true;           // true = allowed to trigger a new round on gu-hold
+let holdStart = null;
+let cameraReady = false;
 
 const HAND_MAP = {
   Closed_Fist: { name: 'グー', emoji: '✊' },
   Open_Palm:   { name: 'パー', emoji: '✋' },
   Victory:     { name: 'チョキ', emoji: '✌️' }
 };
-
 const WIN_MAP = { 'グー': 'チョキ', 'チョキ': 'パー', 'パー': 'グー' };
+const HOLD_MS = 1000;
 
 function setStatus(text){ statusEl.textContent = text; }
 
-async function initCamera(){
-  setStatus('カメラの じゅんびちゅう…');
-  startBtn.disabled = true;
+async function startCameraStream(){
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+    audio: false
+  });
+  video.srcObject = stream;
+  await video.play();
+  await new Promise(resolve=>{
+    if(video.readyState >= 2) return resolve();
+    video.addEventListener('loadeddata', resolve, { once:true });
+  });
+  cameraReady = true;
+  permBtn.classList.add('hidden');
+}
+
+async function loadRecognizer(){
+  const vision = await FilesetResolver.forVisionTasks(
+    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+  );
+  const baseOptions = {
+    modelAssetPath: "https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task"
+  };
+  const commonOptions = {
+    runningMode: "VIDEO",
+    numHands: 1,
+    minHandDetectionConfidence: 0.4,
+    minHandPresenceConfidence: 0.4,
+    minTrackingConfidence: 0.4
+  };
   try{
-    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-    video.srcObject = stream;
-    await video.play();
+    recognizer = await GestureRecognizer.createFromOptions(vision, {
+      baseOptions: { ...baseOptions, delegate: "CPU" },
+      ...commonOptions
+    });
+    return;
+  }catch(e){ /* fall through to GPU attempt */ }
+  recognizer = await GestureRecognizer.createFromOptions(vision, {
+    baseOptions: { ...baseOptions, delegate: "GPU" },
+    ...commonOptions
+  });
+}
+
+async function init(){
+  setStatus('カメラを じゅんびちゅう…');
+  try{
+    await startCameraStream();
   }catch(err){
-    setStatus('カメラを つかえませんでした。ブラウザの せっていを かくにんしてね。');
-    startBtn.disabled = false;
+    setStatus('カメラを つかうには きょかが ひつようです。');
+    permBtn.classList.remove('hidden');
+    permBtn.onclick = async ()=>{
+      try{ await startCameraStream(); await afterCameraReady(); }
+      catch(e){ setStatus('カメラを つかえませんでした。ブラウザの せっていを かくにんしてね。'); }
+    };
+    return;
+  }
+  await afterCameraReady();
+}
+
+async function afterCameraReady(){
+  setStatus('AIを よみこみちゅう…');
+  try{
+    await loadRecognizer();
+  }catch(e){
+    setStatus('AIの よみこみに しっぱいしました。ページを りろーど してね。');
+    return;
+  }
+  setStatus('✊ グーを 1びょう みせてね！');
+  playBtn.disabled = false;
+  requestAnimationFrame(detectLoop);
+}
+
+function extractGesture(result){
+  if(!result || !result.gestures || result.gestures.length === 0) return null;
+  const top = result.gestures[0][0];
+  const mapped = HAND_MAP[top.categoryName];
+  if(!mapped) return null;
+  if(top.score < 0.45) return null;
+  return { name: mapped.name, emoji: mapped.emoji, score: top.score };
+}
+
+function detectLoop(timestampMs){
+  if(recognizer && cameraReady && video.readyState >= 2){
+    try{
+      const result = recognizer.recognizeForVideo(video, Math.floor(timestampMs));
+      latestGesture = extractGesture(result);
+    }catch(e){
+      latestGesture = null;
+    }
+    if(!roundInProgress) updateHoldState();
+  }
+  requestAnimationFrame(detectLoop);
+}
+
+function updateHoldState(){
+  const now = performance.now();
+  const holdingGu = latestGesture && latestGesture.name === 'グー';
+
+  if(!armed){
+    if(!holdingGu){ armed = true; }
+    holdBar.style.width = '0%';
     return;
   }
 
-  setStatus('AIを よみこみちゅう…');
-  try{
-    const vision = await FilesetResolver.forVisionTasks(
-      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
-    );
-    recognizer = await GestureRecognizer.createFromOptions(vision, {
-      baseOptions: {
-        modelAssetPath: "https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task",
-        delegate: "GPU"
-      },
-      runningMode: "IMAGE",
-      numHands: 1
-    });
-  }catch(e){
-    try{
-      const vision = await FilesetResolver.forVisionTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
-      );
-      recognizer = await GestureRecognizer.createFromOptions(vision, {
-        baseOptions: {
-          modelAssetPath: "https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task",
-          delegate: "CPU"
-        },
-        runningMode: "IMAGE",
-        numHands: 1
-      });
-    }catch(e2){
-      setStatus('AIの よみこみに しっぱいしました。ページを りろーどしてね。');
-      return;
+  if(holdingGu){
+    if(holdStart === null) holdStart = now;
+    const heldMs = now - holdStart;
+    const pct = Math.min(100, (heldMs / HOLD_MS) * 100);
+    holdBar.style.width = pct + '%';
+    if(heldMs < HOLD_MS){
+      setStatus('✊ グーを キープ中… そのまま！');
     }
+    if(heldMs >= HOLD_MS){
+      holdStart = null;
+      armed = false;
+      holdBar.style.width = '0%';
+      runRound();
+    }
+  } else {
+    holdStart = null;
+    holdBar.style.width = '0%';
+    if(!roundInProgress) setStatus('✊ グーを 1びょう みせてね！');
   }
-
-  setStatus('じゅんび OK！「ジャンケン ぽん！」を おしてね');
-  playBtn.disabled = false;
 }
 
 function showOverlay(text, ms){
@@ -339,22 +529,15 @@ function showOverlay(text, ms){
   });
 }
 
-function classifyHand(){
-  if(!recognizer) return null;
-  const result = recognizer.recognize(video);
-  if(!result.gestures || result.gestures.length === 0) return null;
-  const top = result.gestures[0][0];
-  if(top.score < 0.55) return null;
-  return HAND_MAP[top.categoryName] || null;
-}
-
 function judge(you, ai){
   if(you === ai) return 'draw';
   if(WIN_MAP[you] === ai) return 'win';
   return 'lose';
 }
 
-async function playRound(){
+async function runRound(){
+  if(roundInProgress) return;
+  roundInProgress = true;
   playBtn.disabled = true;
   judgeText.textContent = '';
   judgeText.className = 'judge';
@@ -367,11 +550,13 @@ async function playRound(){
   await showOverlay('ジャンケン', 550);
 
   const overlayPromise = showOverlay('ポン！', 500);
-  const hand = classifyHand();
   await overlayPromise;
+  const hand = latestGesture; // most recent continuously-tracked gesture at the "pon" moment
 
   if(!hand){
-    setStatus('てが うまく みえなかったよ。もういちど おしてね！');
+    setStatus('てが うまく みえなかったよ。もう一度 グーを 1びょう みせてね！');
+    judgeText.textContent = 'てが みえませんでした';
+    roundInProgress = false;
     playBtn.disabled = false;
     return;
   }
@@ -395,7 +580,8 @@ async function playRound(){
   drawCountEl.textContent = scores.draw;
   loseCountEl.textContent = scores.lose;
 
-  setStatus('じゅんび OK！「ジャンケン ぽん！」を おしてね');
+  setStatus('✊ グーを 1びょう みせてね！');
+  roundInProgress = false;
   playBtn.disabled = false;
 }
 
@@ -410,9 +596,11 @@ function resetScores(){
   aiEmoji.textContent = '❔';
 }
 
-startBtn.addEventListener('click', initCamera);
-playBtn.addEventListener('click', playRound);
+playBtn.addEventListener('click', runRound);
 resetBtn.addEventListener('click', resetScores);
+
+// Auto-start the camera as soon as the page loads.
+init();
 </script>
 </body>
 </html>
